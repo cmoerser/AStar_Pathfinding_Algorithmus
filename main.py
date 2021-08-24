@@ -21,7 +21,6 @@ LIGHTBLUE = (100,150,255)
 allNodes = []
 endList = []
 
-unknownList = []
 openList = []
 closedList = []
 
@@ -57,8 +56,6 @@ def prepareAllNodes():
 def initializeNodes():    
     global startNode
     global endNode
-    #startNode = allNodes[0]
-    #endNode = allNodes[1799] 
     
     for n in allNodes:
         n.distanceToGoal = math.sqrt(math.pow(n.pos[0]-endNode.pos[0],2)+math.pow(n.pos[1]-endNode.pos[1],2)) 
@@ -77,8 +74,6 @@ def initializeNodes():
         
         for nE in tmpN:
             n.neighbors.append([nE,10])
-
-        if not n.isWall and n != startNode: unknownList.append(n)
     
     startNode.f = startNode.distanceToGoal
     openList.append(startNode)
@@ -88,22 +83,21 @@ def aStar(WIN):
     global finish
     while len(openList) > 0:
         lowF = openList[0]
-        for n in openList:      # Suche Node mit niedrigstem f
+
+        # Suche Node mit niedrigstem f
+        for n in openList:      
             if n.f < lowF.f:
                 lowF = n
         
         if lowF == endNode: 
-            #pygame.draw.rect(WIN,RED,lowF.rect,0)
             break
         
-        for nE in lowF.neighbors:       # Gehe alle Nachbarn durch, berechne f und füge openList hinzu
+        # Gehe alle Nachbarn durch, berechne f und füge openList hinzu
+        for nE in lowF.neighbors:       
             if nE[0] in closedList: continue
 
             if nE[0] not in openList:
-                openList.append(nE[0])
-                unknownList.remove(nE[0])
-                #pygame.draw.rect(WIN,YELLOW,nE[0].rect,0)
-                
+                openList.append(nE[0])               
     
             newF = (lowF.f - lowF.distanceToGoal) + nE[1] + nE[0].distanceToGoal
             if nE[0].f == -1 or newF < nE[0].f:
@@ -112,7 +106,8 @@ def aStar(WIN):
 
         openList.remove(lowF)
         closedList.append(lowF)   
-        #pygame.draw.rect(WIN,RED,lowF.rect,0)
+
+        # Zur veranschaulichung wird der Threas verlangsamt
         time.sleep(0.05)
 
     
@@ -124,7 +119,6 @@ def aStar(WIN):
     
 
 def selectNode(pos):
-    #ret = [x for x in allNodes if x.pos == pos]
     for n in allNodes:
         if n.pos[0] <= pos[0] and pos[0] < n.pos[0]+n.size[0]:
             if n.pos[1] <= pos[1] and pos[1] < n.pos[1]+n.size[1]:
@@ -149,19 +143,14 @@ def main():
     
     prepareAllNodes()
     
-
     for n in allNodes:
         pygame.draw.rect(WIN,BLACK,n.rect,1)
     pygame.display.flip()
 
-    #pygame.draw.rect(WIN,LIGHTBLUE,startNode.rect,0)
-    #pygame.draw.rect(WIN,BLUE,endNode.rect,0)
-    
 
     run = True
     draw = False
     erase = False
-
     isSolving = False
 
     clock = pygame.time.Clock()
